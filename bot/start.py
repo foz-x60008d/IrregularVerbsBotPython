@@ -4,7 +4,8 @@ from typing import Dict
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-from bot.classes import TrainSession, Word
+from bot.classes import TrainSession, Words
+from bot.utils import words_reader
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -14,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 # текущие упражнения по id чата
 train_sessions_db: Dict[int, TrainSession] = dict()
+
+# база слов
+words = Words(list(words_reader('verbs.csv')))
 
 
 def start(bot, update):
@@ -26,7 +30,7 @@ def start(bot, update):
 def train(bot, update):
     if update.message.chat_id not in train_sessions_db:
         train_sessions_db[update.message.chat_id] = TrainSession(
-            [Word('do', 'did', 'done'), Word('set', 'set', 'set')]
+            words.get_random_words(10)
         )
 
     bot.send_message(
