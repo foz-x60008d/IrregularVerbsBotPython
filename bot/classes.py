@@ -1,14 +1,28 @@
 import random
-from collections import namedtuple
+from typing import List, NamedTuple
 
 FORMS = ['present', 'past', 'past_participle']
 
-Word = namedtuple('Word', FORMS)
+
+class Word(NamedTuple):
+    translation: str
+    present: str
+    past: str
+    past_participle: str
+
+
+class Words:
+    def __init__(self, words):
+        self.words = words
+
+    def get_random_words(self, size):
+        indices = random.sample(range(len(self.words)), size)
+        return [self.words[i] for i in sorted(indices)]
 
 
 class TrainSession:
     def __init__(self, words):
-        self.words = words
+        self.words: List[Word] = words
         self.current_word = 0
         self.current_question = None
 
@@ -20,7 +34,12 @@ class TrainSession:
                 for form in FORMS
             )
         )
-        return "{}/{} {}".format(self.current_word + 1, len(self.words), question)
+        return "{}/{} {} {}".format(
+            self.current_word + 1,
+            len(self.words),
+            self.words[self.current_word].translation,
+            question
+        )
 
     def check_answer(self, answer: str):
         result = getattr(self.words[self.current_word], self.current_question) == answer.lower()
